@@ -1,6 +1,6 @@
 namespace itbXLib;
 
-public class Inputs
+public static class Inputs
 {
     private const string MsgNotANumber = "Input is not a number";
     private const string MsgNegativeNumber = "Number inputted is negative";

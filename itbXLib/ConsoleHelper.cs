@@ -1,6 +1,6 @@
 namespace itbXLib;
 
-public class ConsoleHelper
+public static class ConsoleHelper
 {
     public static void ColorWrite(string msg, ConsoleColor color)
     {

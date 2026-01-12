@@ -1,6 +1,6 @@
 ﻿namespace itbXLib;
 
-public class Recursives
+public static class Recursives
 {
     /// <summary>
     /// Prints a countdown from n to 1 to the console recursively.
