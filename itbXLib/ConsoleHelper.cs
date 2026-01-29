@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace itbXLib;
 
 /// <summary>
@@ -26,7 +28,7 @@ public static class ConsoleHelper
     }
     
     /// <summary>
-    /// Writes the specified string value to the standard output stream using specific RGB values.
+    /// Writes the specified string value to the standard output stream using a specific Hex color code.
     /// This method uses ANSI escape sequences to support TrueColor (24-bit) and does not append a newline.
     /// </summary>
     /// <remarks>
@@ -34,12 +36,10 @@ public static class ConsoleHelper
     /// <para>The color is automatically reset to default after the message is written.</para>
     /// </remarks>
     /// <param name="msg">The message to write to the console.</param>
-    /// <param name="r">The red component of the color (0-255).</param>
-    /// <param name="g">The green component of the color (0-255).</param>
-    /// <param name="b">The blue component of the color (0-255).</param>
-    public static void ColorWrite(string msg, byte r, byte g, byte b)
+    /// <param name="hexColor">The hex color code (e.g., "#FF5733" or "FF5733").</param>
+    public static void ColorWrite(string msg, string hexColor)
     {
-        string ansiColor = $"\u001b[38;2;{r};{g};{b}m";
+        string ansiColor = GetAnsiFromHex(hexColor);
         Console.Write($"{ansiColor}{msg}{AnsiReset}");
     }
     
@@ -61,19 +61,17 @@ public static class ConsoleHelper
     
     /// <summary>
     /// Writes the specified string value, followed by the current line terminator, 
-    /// to the standard output stream using specific RGB values.
+    /// to the standard output stream using a specific Hex color code.
     /// </summary>
     /// <remarks>
     /// <para>This method requires a terminal that supports ANSI escape codes and TrueColor.</para>
     /// <para>The color is automatically reset to default after the message is written.</para>
     /// </remarks>
     /// <param name="msg">The message to write to the console.</param>
-    /// <param name="r">The red component of the color (0-255).</param>
-    /// <param name="g">The green component of the color (0-255).</param>
-    /// <param name="b">The blue component of the color (0-255).</param>
-    public static void ColorWriteLine(string msg, byte r, byte g, byte b)
+    /// <param name="hexColor">The hex color code (e.g., "#FF5733" or "FF5733").</param>
+    public static void ColorWriteLine(string msg, string hexColor)
     {
-        string ansiColor = $"\u001b[38;2;{r};{g};{b}m";
+        string ansiColor = GetAnsiFromHex(hexColor);
         Console.WriteLine($"{ansiColor}{msg}{AnsiReset}");
     }
 
@@ -103,5 +101,20 @@ public static class ConsoleHelper
         Console.WriteLine(paddingStr + separator);
         Console.WriteLine(paddingStr + new string(' ', margin) + msg + new string(' ', margin));
         Console.WriteLine(paddingStr + separator);
+    }
+
+    private static string GetAnsiFromHex(string hexColor)
+    {
+        if (string.IsNullOrEmpty(hexColor)) return "";
+
+        hexColor = hexColor.TrimStart('#');
+
+        if (hexColor.Length != 6) return "";
+
+        byte r = byte.Parse(hexColor.Substring(0, 2), NumberStyles.HexNumber);
+        byte g = byte.Parse(hexColor.Substring(2, 2), NumberStyles.HexNumber);
+        byte b = byte.Parse(hexColor.Substring(4, 2), NumberStyles.HexNumber);
+        
+        return $"\u001b[38;2;{r};{g};{b}m";
     }
 }
