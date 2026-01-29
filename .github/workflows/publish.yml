@@ -46,7 +46,9 @@ jobs:
           dotnet pack --configuration Release --no-build -o ./dist /p:Version=${{ steps.version.outputs.version }}
 
       - name: Publicar en NuGet
-        run: dotnet nuget push ./dist/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+        env:
+          SECRET: ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push ./dist/*.nupkg --api-key $SECRET --source https://api.nuget.org/v3/index.json
 
       - name: Crear GitHub Release
         uses: softprops/action-gh-release@v1
