@@ -9,7 +9,7 @@ on:
       - main
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-and-pack:
@@ -60,6 +60,8 @@ jobs:
     needs: build-and-pack
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     environment:
       name: Nuget Release
       url: https://www.nuget.org/packages/itbXLib/${{ needs.build-and-pack.outputs.version }}
