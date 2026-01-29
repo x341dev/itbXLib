@@ -4,7 +4,12 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <RootNamespace>itb-xlib</RootNamespace>
+        <RootNamespace>itbXlib</RootNamespace>
+        <PackageId>itbXLib</PackageId>
+        <Authors>x341dev</Authors>
+        <Company>ITecBCN</Company>
+        <Description>A helper library for activities for the Institut Tecnològic de Barcelona</Description>
+        <RepositoryUrl>https://github.com/x341dev/itbXLib</RepositoryUrl>
     </PropertyGroup>
 
 </Project>
