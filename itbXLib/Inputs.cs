@@ -34,18 +34,4 @@ public static class Inputs
             }
         }
     }
-
-    public static int AskForPositiveNumber(string msg)
-    {
-        int n = -1;
-        while (n < 0)
-        {
-            AskForNumber(msg);
-            if (n < 0)
-            {
-                ConsoleHelper.ColorWriteLine(MsgNegativeNumber, ConsoleColor.DarkRed);
-            }
-        }
-        return 0;
-    }
 }
