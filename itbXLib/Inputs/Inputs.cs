@@ -1,4 +1,6 @@
-namespace itbXLib;
+using itbXLib.ConsoleUtils;
+
+namespace itbXLib.Inputs;
 
 public static class Inputs
 {

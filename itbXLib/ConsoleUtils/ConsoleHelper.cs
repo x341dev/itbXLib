@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace itbXLib;
+namespace itbXLib.ConsoleUtils;
 
 /// <summary>
 /// Provides static utility methods to enhance console application output.
