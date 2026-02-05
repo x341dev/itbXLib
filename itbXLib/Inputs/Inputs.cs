@@ -12,7 +12,7 @@ public static class IntInput
     {
         while (true)
         {
-            Console.WriteLine(msg);
+            Console.Write(msg);
             string nstr = Console.ReadLine() ?? "";
 
             try
