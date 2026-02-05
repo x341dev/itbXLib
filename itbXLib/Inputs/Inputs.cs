@@ -2,7 +2,7 @@ using itbXLib.ConsoleUtils;
 
 namespace itbXLib.Inputs;
 
-public static class Inputs
+public static class IntInput
 {
     private const string MsgNotANumber = "Input is not a number";
     private const string MsgNegativeNumber = "Number inputted is negative";
@@ -10,8 +10,6 @@ public static class Inputs
     
     public static int AskForNumber(string msg)
     {
-        int n;
-
         while (true)
         {
             Console.WriteLine(msg);
@@ -19,7 +17,7 @@ public static class Inputs
 
             try
             {
-                n = int.Parse(nstr);
+                int n = int.Parse(nstr);
                 return n;
             }
             catch (FormatException)
@@ -34,6 +32,20 @@ public static class Inputs
             {
                 ConsoleHelper.ColorWriteLine("Unexpected error" + e.Message, ConsoleColor.DarkRed);
             }
+        }
+    }
+    
+    public static int AskForPositiveNumber(string msg)
+    {
+        while (true)
+        {
+            int n = AskForNumber(msg);
+            if (n < 0)
+            {
+                ConsoleHelper.ColorWriteLine(MsgNegativeNumber, ConsoleColor.DarkRed);
+                continue;
+            }
+            return n;
         }
     }
 }
