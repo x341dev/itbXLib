@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### DOCUMENTATION
+
+- Created LICENSE (75c2ca4)
+
+## [v0.2.0] - 2026-02-05
+
 ### ADDED
 
 - Add Colors class with RgbToAnsi method for color conversion (ed4deaf)
@@ -33,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add documentation to all functions (5cc0717)
 
 - Create CHANGELOG.md (4b8e341)
+
+- Update CHANGELOG.md [skip ci] (e18fc40)
 
 
 ### FIXED
