@@ -1,15 +1,13 @@
-name: CI/CD Pipeline
+name: CI/CD Publish & Tag
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-and-pack:
@@ -17,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,46 +26,52 @@ jobs:
         uses: PaulHatch/semantic-version@v5.4.0
         with:
           tag_prefix: "v"
-          major_pattern: "(MAJOR)"
-          minor_pattern: "feat:"
           version_format: "${major}.${minor}.${patch}"
-          bump_each_commit: false
 
-      - name: Setup .NET 8
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore
-        run: dotnet restore
-
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-
-      - name: Pack
-        run: dotnet pack --configuration Release --no-build -o ./packages /p:Version=${{ steps.version.outputs.version }}
+      - name: Build and Pack
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet pack --configuration Release -o ./packages /p:Version=${{ steps.version.outputs.version }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: nuget-package
           path: ./packages/*.nupkg
-          retention-days: 1
 
   approve-and-release:
     name: Approve & Publish
     needs: build-and-pack
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     environment:
       name: Nuget Release
-      url: https://www.nuget.org/packages/itbXLib/${{ needs.build-and-pack.outputs.version }}
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update Changelog with Tag
+        uses: orhun/git-cliff-action@main
+        with:
+          config: cliff.toml
+          args: --tag v${{ needs.build-and-pack.outputs.version }} --output CHANGELOG.md
+
+      - name: Commit Release Changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "chore(release): prepare for v${{ needs.build-and-pack.outputs.version }} [skip ci]" || echo "No changes"
+          git push
 
       - name: Download Artifact
         uses: actions/download-artifact@v4
@@ -81,11 +84,10 @@ jobs:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: dotnet nuget push ./packages/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
 
-      - name: Create GitHub Tag & Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.build-and-pack.outputs.version }}
           name: Release v${{ needs.build-and-pack.outputs.version }}
-          body: "Automated release via GitHub Actions."
-          generate_release_notes: true
+          body_path: CHANGELOG.md
           files: ./packages/*.nupkg
