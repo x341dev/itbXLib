@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v0.2.1] - 2026-02-09
 
 ### BUG FIXES
 
@@ -15,5 +15,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### FEATURES
 
 - **BREAKING**: Add Ansi reset color to Colors (ed7fab4)
+
+## [v0.2.0] - 2026-02-05
+
+### BUG FIXES
+
+- Using WriteLine instead of Write (93a8d60)
+
+
+### FEATURES
+
+- Add Colors class with RgbToAnsi method for color conversion (ed4deaf)
+
+- Add RgbToAnsi method for hex color conversion (b429def)
+
+## [v0.1.2] - 2026-01-29
+
+### REFACTOR
+
+- **BREAKING**: Replace RGB params with Hex string support (138e292) — Updated ColorWrite and ColorWriteLine to accept a hex color code string (e.g. "#FF0000") instead of individual byte parameters for RGB.
 
 
