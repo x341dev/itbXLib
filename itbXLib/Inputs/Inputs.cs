@@ -1,4 +1,4 @@
-using itbXLib.ConsoleUtils;
+using itbXLib.Colors;
 
 namespace itbXLib.Inputs;
 
@@ -31,15 +31,15 @@ public static class IntInput
             }
             catch (FormatException)
             {
-                ConsoleHelper.ColorWriteLine(MsgNotANumber, ConsoleColor.DarkRed);
+                Console.WriteLine($"{Colors.Colors.RgbToAnsi("FF8B00")}{MsgNotANumber}{Colors.Colors.AnsiReset}");
             }
             catch (OverflowException)
             {
-                ConsoleHelper.ColorWriteLine(MsgTooBig, ConsoleColor.DarkRed);
+                Console.WriteLine($"{Colors.Colors.RgbToAnsi("FF8B00")}{MsgTooBig}{Colors.Colors.AnsiReset}");
             }
             catch (Exception e)
             {
-                ConsoleHelper.ColorWriteLine("Unexpected error" + e.Message, ConsoleColor.DarkRed);
+                Console.WriteLine($"{Colors.Colors.RgbToAnsi("FF8B00")}Unexpected error" + e.Message + $"{Colors.Colors.AnsiReset}");
             }
         }
     }
@@ -56,7 +56,7 @@ public static class IntInput
             int n = AskForNumber(msg);
             if (n < 0)
             {
-                ConsoleHelper.ColorWriteLine(MsgNegativeNumber, ConsoleColor.DarkRed);
+                Console.WriteLine($"{Colors.Colors.RgbToAnsi("FF8B00")}{MsgNegativeNumber}{Colors.Colors.AnsiReset}");
                 continue;
             }
             return n;
