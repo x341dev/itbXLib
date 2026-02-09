@@ -5,6 +5,8 @@ namespace itbXLib.Colors;
 /// </summary>
 public class Colors
 {
+    public const string AnsiReset = "\u001b[0m";
+    
     /// <summary>
     /// Converts RGB components to an ANSI escape sequence for 24-bit (TrueColor) foreground color.
     /// </summary>
