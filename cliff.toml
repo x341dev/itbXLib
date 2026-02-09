@@ -42,18 +42,22 @@ filter_unconventional = false
 split_commits = false
 # regex for parsing the commit messages
 commit_parsers = [
-    { message = "^feat", group = "Added" },
-    { message = "^fix", group = "Fixed" },
-    { message = "^doc", group = "Documentation" },
-    { message = "^docs", group = "Documentation" },
+    { breaking = true, group = "⚠️ Breaking Changes" },
+    
+    { message = "^feat", group = "Features" },
+    { message = "^fix", group = "Bug Fixes" },
+    
     { message = "^perf", group = "Performance" },
-    { message = "^refactor", group = "Changed" },
-    { message = "^test", group = "Tests" },
-    { message = "^ci", group = "CI/CD" },
-    { message = "^chore", group = "Chores" },
-    { message = "^revert", group = "Reverted" },
     { message = "^security", group = "Security" },
-    { message = "^breaking", group = "Breaking Changes" },
+    { message = "^revert", group = "Reverted" },
+    
+    { message = "^doc", skip = true },
+    { message = "^docs", skip = true },
+    { message = "^chore", skip = true },
+    { message = "^ci", skip = true },
+    { message = "^test", skip = true },
+    { message = "^refactor", skip = true },
+    { message = "^style", skip = true },
 ]
 # protect breaking changes from being skipped due to matching a skipping pattern
 protect_breaking_commits = true
