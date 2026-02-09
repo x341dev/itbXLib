@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### ADDED
+
+- **BREAKING**: Add Ansi reset color to Colors (ed7fab4)
+
+
 ### DOCUMENTATION
 
 - Created LICENSE (75c2ca4)
+
+- Update CHANGELOG.md [skip ci] (976b898)
 
 ## [v0.2.0] - 2026-02-05
 
