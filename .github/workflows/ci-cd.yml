@@ -159,6 +159,12 @@ jobs:
           config: cliff.toml
           args: --tag v${{ needs.build-and-pack.outputs.version }} --output CHANGELOG.md
 
+      - name: Generate Release Notes
+        uses: orhun/git-cliff-action@main
+        with:
+          config: cliff.toml
+          args: --tag v${{ needs.build-and-pack.outputs.version }} --current --strip all --output release-notes.md
+
       - name: Commit and Push Release Changelog
         run: |
           git config user.name "github-actions[bot]"
@@ -183,6 +189,6 @@ jobs:
         with:
           tag_name: v${{ needs.build-and-pack.outputs.version }}
           name: Release v${{ needs.build-and-pack.outputs.version }}
-          body_path: CHANGELOG.md
+          body_path: release-notes.md
           files: ./packages/*.nupkg
 
