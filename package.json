@@ -1,0 +1,29 @@
+{
+  "name": "itbxlib",
+  "version": "1.0.0",
+  "description": "[![.NET Tests](https://github.com/x341dev/itbXLib/actions/workflows/test.yml/badge.svg?event=push)](https://github.com/x341dev/itbXLib/actions/workflows/test.yml)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky",
+    "commitlint:last": "commitlint --from HEAD~1 --to HEAD --verbose",
+    "commitlint:ci": "commitlint --from $GITHUB_SHA_RANGE_FROM --to $GITHUB_SHA_RANGE_TO --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/x341dev/itbXLib.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/x341dev/itbXLib/issues"
+  },
+  "homepage": "https://github.com/x341dev/itbXLib#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "husky": "^9.1.7"
+  }
+}

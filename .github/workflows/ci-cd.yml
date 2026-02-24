@@ -35,17 +35,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add CHANGELOG.md
-          # Si no hay cambios nuevos, no falla
           git commit -m "docs: update unreleased changes [skip ci]" || echo "No changes to commit"
           git push
 
-  build-and-pack:
-    name: Build & Version
+  calculate-version:
+    name: Calculate Version
     needs: update-unreleased
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.version.outputs.version }}
-    
+      version: ${{ steps.bumped.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,12 +51,74 @@ jobs:
           fetch-depth: 0
           ref: main
 
-      - name: Calculate Semantic Version
-        id: version
-        uses: PaulHatch/semantic-version@v5.4.0
+      - name: Install git-cliff
+        uses: taiki-e/install-action@v2
         with:
-          tag_prefix: "v"
-          version_format: "${major}.${minor}.${patch}"
+          tool: git-cliff
+
+      - name: Compute bumped version
+        id: bumped
+        run: |
+          VERSION=$(git cliff --bumped-version 2>/dev/null | sed 's/^v//')
+          echo "Computed next version: $VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Validate major bump for breaking changes
+        run: |
+          VERSION="${{ steps.bumped.outputs.version }}"
+          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+
+          # Collect breaking commits since the last semver tag
+          LAST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" 2>/dev/null || echo "")
+          if [ -z "$LAST_TAG" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${LAST_TAG}..HEAD"
+          fi
+
+          BREAKING=$(git log "$RANGE" --format="%s" | grep -E '^[a-z]+(\([^)]+\))?!:' || true)
+          BREAKING_FOOTER=$(git log "$RANGE" --format="%b" | grep -iE '^BREAKING[- ]CHANGE:' || true)
+
+          HAS_BREAKING=0
+          [ -n "$BREAKING" ] && HAS_BREAKING=1
+          [ -n "$BREAKING_FOOTER" ] && HAS_BREAKING=1
+
+          if [ "$HAS_BREAKING" -eq 1 ] && [ "$MAJOR" -lt 1 ]; then
+            echo ""
+            echo "╔══════════════════════════════════════════════════════════════╗"
+            echo "║            ⚠️  BREAKING CHANGES — MAJOR BUMP REQUIRED  ⚠️    ║"
+            echo "╚══════════════════════════════════════════════════════════════╝"
+            echo ""
+            echo "Breaking commits found since $LAST_TAG:"
+            echo "$BREAKING"
+            echo "$BREAKING_FOOTER"
+            echo ""
+            echo "git-cliff computed version: $VERSION"
+            echo "Expected: major >= 1  (e.g. 1.0.0)"
+            echo ""
+            echo "This usually means all existing tags were listed under skip_tags"
+            echo "in cliff.toml, so git-cliff has no baseline to bump from."
+            echo "Fix: remove the offending tag from skip_tags and re-run, or"
+            echo "     manually create a v1.0.0 tag on the previous release commit."
+            echo ""
+            exit 1
+          fi
+
+          echo "✅  Version $VERSION is consistent with the commit history."
+
+  build-and-pack:
+    name: Build & Pack
+    needs: calculate-version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ needs.calculate-version.outputs.version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
 
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
@@ -69,7 +129,8 @@ jobs:
         run: |
           dotnet restore
           dotnet build --configuration Release
-          dotnet pack --configuration Release -o ./packages /p:Version=${{ steps.version.outputs.version }}
+          dotnet pack --configuration Release -o ./packages \
+            /p:Version=${{ needs.calculate-version.outputs.version }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -84,7 +145,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: Nuget Release
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -102,11 +163,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          # No hacemos git pull aquí porque acabamos de hacer checkout de main al principio.
-          # Si el repo cambió mucho mientras esperabas la aprobación, el push fallará,
-          # pero es más seguro fallar que intentar un merge automático sobre un archivo generado.
-          
           git add CHANGELOG.md
           git commit -m "chore(release): prepare for v${{ needs.build-and-pack.outputs.version }} [skip ci]" || echo "No changes"
           git push
@@ -129,3 +185,4 @@ jobs:
           name: Release v${{ needs.build-and-pack.outputs.version }}
           body_path: CHANGELOG.md
           files: ./packages/*.nupkg
+
