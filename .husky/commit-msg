@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Lint the commit message against conventional commits rules.
+# $1 is the path to the file containing the commit message (e.g. .git/COMMIT_EDITMSG).
+./node_modules/.bin/commitlint --edit "$1"
+

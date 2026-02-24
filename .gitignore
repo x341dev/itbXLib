@@ -3,3 +3,8 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+# Node / commitlint tooling
+node_modules/
+npm-debug.log*
+
