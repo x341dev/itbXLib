@@ -7,3 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### FEATURES
+
+- Add Styles class for terminal text styling and emoji support (4b556a2)
+
+
+### REFACTOR
+
+- **BREAKING**: Consolidate all utilities into itbXLib.TerminalUtils and add TerminalCapabilities (2392ca2)
+
+
