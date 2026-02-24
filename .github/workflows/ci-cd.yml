@@ -110,48 +110,128 @@ jobs:
           echo "Computed next version: $VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-      - name: Validate major bump for breaking changes
+      - name: Validate SemVer bump
         run: |
           VERSION="${{ steps.bumped.outputs.version }}"
-          MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          NEW_MAJOR=$(echo "$VERSION" | cut -d. -f1)
+          NEW_MINOR=$(echo "$VERSION" | cut -d. -f2)
+          NEW_PATCH=$(echo "$VERSION" | cut -d. -f3)
 
-          # Collect breaking commits since the last semver tag
           LAST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" 2>/dev/null || echo "")
           if [ -z "$LAST_TAG" ]; then
             RANGE="HEAD"
+            OLD_MAJOR=0; OLD_MINOR=0; OLD_PATCH=0
           else
             RANGE="${LAST_TAG}..HEAD"
+            STRIPPED=${LAST_TAG#v}
+            OLD_MAJOR=$(echo "$STRIPPED" | cut -d. -f1)
+            OLD_MINOR=$(echo "$STRIPPED" | cut -d. -f2)
+            OLD_PATCH=$(echo "$STRIPPED" | cut -d. -f3)
           fi
 
-          BREAKING=$(git log "$RANGE" --format="%s" | grep -E '^[a-z]+(\([^)]+\))?!:' || true)
-          BREAKING_FOOTER=$(git log "$RANGE" --format="%b" | grep -iE '^BREAKING[- ]CHANGE:' || true)
+          echo "Baseline : ${LAST_TAG:-"(none)"} → ${OLD_MAJOR}.${OLD_MINOR}.${OLD_PATCH}"
+          echo "Computed : $VERSION"
+          echo ""
+
+          SUBJECTS=$(git log "$RANGE" --format="%s")
+          BODIES=$(git log "$RANGE" --format="%b")
 
           HAS_BREAKING=0
-          [ -n "$BREAKING" ] && HAS_BREAKING=1
-          [ -n "$BREAKING_FOOTER" ] && HAS_BREAKING=1
+          HAS_FEAT=0
+          HAS_PATCH=0
 
-          if [ "$HAS_BREAKING" -eq 1 ] && [ "$MAJOR" -lt 1 ]; then
+          echo "$SUBJECTS" | grep -qE '^[a-z]+(\([^)]+\))?!:' && HAS_BREAKING=1
+          echo "$BODIES"   | grep -qiE '^BREAKING[- ]CHANGE:'  && HAS_BREAKING=1
+          echo "$SUBJECTS" | grep -qE '^feat(\([^)]+\))?:'     && HAS_FEAT=1
+          echo "$SUBJECTS" | grep -qE '^(fix|perf|security|revert)(\([^)]+\))?:' && HAS_PATCH=1
+
+          if   [ "$HAS_BREAKING" -eq 1 ]; then REQUIRED="MAJOR"
+          elif [ "$HAS_FEAT"     -eq 1 ]; then REQUIRED="MINOR"
+          elif [ "$HAS_PATCH"    -eq 1 ]; then REQUIRED="PATCH"
+          else                                  REQUIRED="NONE"
+          fi
+
+          echo "Required bump : $REQUIRED"
+          echo ""
+
+          FAIL=0
+
+          case "$REQUIRED" in
+
+            MAJOR)
+              # MAJOR must increase; MINOR and PATCH must reset to 0
+              if [ "$NEW_MAJOR" -le "$OLD_MAJOR" ]; then
+                echo "❌  MAJOR must increment for breaking changes."
+                echo "    Baseline major: $OLD_MAJOR  →  Computed major: $NEW_MAJOR"
+                FAIL=1
+              fi
+              if [ "$NEW_MINOR" -ne 0 ]; then
+                echo "❌  MINOR must reset to 0 when MAJOR is bumped (got $NEW_MINOR)."
+                FAIL=1
+              fi
+              if [ "$NEW_PATCH" -ne 0 ]; then
+                echo "❌  PATCH must reset to 0 when MAJOR is bumped (got $NEW_PATCH)."
+                FAIL=1
+              fi
+              ;;
+
+            MINOR)
+              # MINOR must increase (within same MAJOR); PATCH must reset to 0
+              if [ "$NEW_MAJOR" -ne "$OLD_MAJOR" ]; then
+                echo "❌  MAJOR must not change for a backward-compatible feature (feat)."
+                echo "    Baseline: $OLD_MAJOR  →  Computed: $NEW_MAJOR"
+                FAIL=1
+              fi
+              if [ "$NEW_MINOR" -le "$OLD_MINOR" ]; then
+                echo "❌  MINOR must increment for new features."
+                echo "    Baseline minor: $OLD_MINOR  →  Computed minor: $NEW_MINOR"
+                FAIL=1
+              fi
+              if [ "$NEW_PATCH" -ne 0 ]; then
+                echo "❌  PATCH must reset to 0 when MINOR is bumped (got $NEW_PATCH)."
+                FAIL=1
+              fi
+              ;;
+
+            PATCH)
+              # Only PATCH increases; MAJOR and MINOR stay the same
+              if [ "$NEW_MAJOR" -ne "$OLD_MAJOR" ]; then
+                echo "❌  MAJOR must not change for a backward-compatible fix."
+                FAIL=1
+              fi
+              if [ "$NEW_MINOR" -ne "$OLD_MINOR" ]; then
+                echo "❌  MINOR must not change for a backward-compatible fix."
+                FAIL=1
+              fi
+              if [ "$NEW_PATCH" -le "$OLD_PATCH" ]; then
+                echo "❌  PATCH must increment for bug fixes."
+                echo "    Baseline patch: $OLD_PATCH  →  Computed patch: $NEW_PATCH"
+                FAIL=1
+              fi
+              ;;
+
+            NONE)
+              echo "ℹ️   No releasable commits found (only docs/chore/ci/test/refactor/style)."
+              echo "    No version bump is required."
+              # git-cliff may still output the same version — that is acceptable.
+              ;;
+          esac
+
+          if [ "$FAIL" -eq 1 ]; then
             echo ""
             echo "╔══════════════════════════════════════════════════════════════╗"
-            echo "║            ⚠️  BREAKING CHANGES — MAJOR BUMP REQUIRED  ⚠️    ║"
+            echo "║               ⚠️  SEMVER VIOLATION DETECTED  ⚠️              ║"
             echo "╚══════════════════════════════════════════════════════════════╝"
             echo ""
-            echo "Breaking commits found since $LAST_TAG:"
-            echo "$BREAKING"
-            echo "$BREAKING_FOOTER"
+            echo "Baseline tag : ${LAST_TAG:-none}  (${OLD_MAJOR}.${OLD_MINOR}.${OLD_PATCH})"
+            echo "Required bump: $REQUIRED"
+            echo "Computed ver : $VERSION"
             echo ""
-            echo "git-cliff computed version: $VERSION"
-            echo "Expected: major >= 1  (e.g. 1.0.0)"
-            echo ""
-            echo "This usually means all existing tags were listed under skip_tags"
-            echo "in cliff.toml, so git-cliff has no baseline to bump from."
-            echo "Fix: remove the offending tag from skip_tags and re-run, or"
-            echo "     manually create a v1.0.0 tag on the previous release commit."
-            echo ""
+            echo "See https://semver.org for the full specification."
             exit 1
           fi
 
-          echo "✅  Version $VERSION is consistent with the commit history."
+          echo "✅  $VERSION satisfies SemVer rules for a $REQUIRED bump."
 
   build-and-pack:
     name: Build & Pack
