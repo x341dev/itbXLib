@@ -7,3 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### FEATURES
+
+- Add input validation methods for int, double, string, and bool (391299a) — deprecate old methods
+
+
