@@ -26,7 +26,7 @@ jobs:
         uses: orhun/git-cliff-action@main
         with:
           config: cliff.toml
-          args: --unreleased --output CHANGELOG.md
+          args: --output CHANGELOG.md
         env:
           OUTPUT: CHANGELOG.md
 
@@ -40,7 +40,6 @@ jobs:
 
   sonarqube:
     name: SonarQube Analysis
-    needs: update-unreleased
     runs-on: windows-latest
     steps:
       - name: Set up JDK 17
@@ -87,7 +86,7 @@ jobs:
 
   calculate-version:
     name: Calculate Version
-    needs: [update-unreleased, sonarqube]
+    needs: update-unreleased
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.bumped.outputs.version }}
@@ -275,7 +274,7 @@ jobs:
         uses: orhun/git-cliff-action@main
         with:
           config: cliff.toml
-          args: --tag v${{ needs.build-and-pack.outputs.version }} --current --strip all --output release-notes.md
+          args: --unreleased --strip all --tag v${{ needs.build-and-pack.outputs.version }} --output release-notes.md
 
       - name: Commit and Push Release Changelog
         run: |
