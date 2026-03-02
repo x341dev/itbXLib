@@ -6,16 +6,59 @@ namespace itbXLib.TerminalUtils;
 /// </summary>
 public static class IntInput
 {
+    public static int ReadInt(string message, string errorMessage)
+    {
+        int result;
+        Console.WriteLine(message);
+        while (!int.TryParse(Console.ReadLine(), out result) || result < 0)
+        {
+            Console.WriteLine(errorMessage);
+        }
+        return result;
+    }
+
+    //Generic method to read and validate a positive double from console
+    public static double ReadDouble(string message, string errorMessage)
+    {
+        double result;
+        Console.WriteLine(message);
+        while(!double.TryParse(Console.ReadLine(), out result) || result <= 0)
+        {
+            Console.WriteLine(errorMessage);
+        }
+        return result;
+    }
+
+    // Generic method to read and validate a non-empty string with minimum length from console
+    public static string ReadString(string message, string errorMessage, int minLength)
+    {
+        Console.WriteLine(message);
+        string input = Console.ReadLine() ?? string.Empty;
+        while (string.IsNullOrWhiteSpace(input) || input.Length < minLength)
+        {
+            Console.WriteLine(errorMessage);
+            input = Console.ReadLine() ?? string.Empty;
+        }
+        return input;
+    }
+
+    //Generic method to read and validate a boolean from console
+    public static bool ReadBool(string message, string errorMessage)
+    {
+        bool result;
+        Console.WriteLine(message);
+        while (!bool.TryParse(Console.ReadLine()?.ToLower().Trim(), out result)) {
+            Console.WriteLine(errorMessage);
+        }
+        return result;
+    }
+    /* DEPRECATED METHODS BELOW */
+    
     private const string MsgNotANumber = "Input is not a number";
     private const string MsgNegativeNumber = "Number inputted is negative";
     private const string MsgTooBig = "Number is too big";
-
-    /// <summary>
-    /// Prompts the user with <paramref name="msg"/> and reads a line from the console until a valid integer
-    /// is entered.
-    /// </summary>
-    /// <param name="msg">The prompt message shown to the user.</param>
-    /// <returns>The parsed integer value.</returns>
+ 
+    [Obsolete("Use ReadInt instead")]
     public static int AskForNumber(string msg)
     {
         while (true)
@@ -43,11 +86,7 @@ public static class IntInput
         }
     }
 
-    /// <summary>
-    /// Prompts the user until they enter a non-negative integer. Negative values will re-prompt.
-    /// </summary>
-    /// <param name="msg">The prompt message shown to the user.</param>
-    /// <returns>A non-negative integer entered by the user.</returns>
+    [Obsolete("Use ReadInt instead")]
     public static int AskForPositiveNumber(string msg)
     {
         while (true)
