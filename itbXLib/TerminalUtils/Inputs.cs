@@ -4,12 +4,12 @@ namespace itbXLib.TerminalUtils;
 /// Provides helper methods for prompting the user for integer inputs on the console.
 /// Methods will repeatedly prompt until a valid value is entered.
 /// </summary>
-public static class IntInput
+public static class IntInputs
 {
     public static int ReadInt(string message, string errorMessage)
     {
         int result;
-        Console.WriteLine(message);
+        Console.Write(message);
         while (!int.TryParse(Console.ReadLine(), out result) || result < 0)
         {
             Console.WriteLine(errorMessage);
@@ -21,7 +21,7 @@ public static class IntInput
     public static double ReadDouble(string message, string errorMessage)
     {
         double result;
-        Console.WriteLine(message);
+        Console.Write(message);
         while(!double.TryParse(Console.ReadLine(), out result) || result <= 0)
         {
             Console.WriteLine(errorMessage);
@@ -32,7 +32,7 @@ public static class IntInput
     // Generic method to read and validate a non-empty string with minimum length from console
     public static string ReadString(string message, string errorMessage, int minLength)
     {
-        Console.WriteLine(message);
+        Console.Write(message);
         string input = Console.ReadLine() ?? string.Empty;
         while (string.IsNullOrWhiteSpace(input) || input.Length < minLength)
         {
@@ -46,7 +46,7 @@ public static class IntInput
     public static bool ReadBool(string message, string errorMessage)
     {
         bool result;
-        Console.WriteLine(message);
+        Console.Write(message);
         while (!bool.TryParse(Console.ReadLine()?.ToLower().Trim(), out result)) {
             Console.WriteLine(errorMessage);
         }
