@@ -4,6 +4,7 @@ namespace itbXLib.TerminalUtils;
 /// Provides helper methods for prompting the user for integer inputs on the console.
 /// Methods will repeatedly prompt until a valid value is entered.
 /// </summary>
+[Obsolete("Use GenericInputs<T> instead for more flexible input handling.")]
 public static class IntInputs
 {
     public static int ReadInt(string message, string errorMessage)
