@@ -31,11 +31,11 @@ public static class ConsoleHelper
 
         if (!TerminalCapabilities.StylingEnabled)
         {
-            Console.Write(msg);
+            Console.Write(formattedMessage);
             return;
         }
         Console.ForegroundColor = color;
-        Console.Write(msg);
+        Console.Write(formattedMessage);
         Console.ResetColor();
     }
 
@@ -58,11 +58,11 @@ public static class ConsoleHelper
         
         if (!TerminalCapabilities.StylingEnabled)
         {
-            Console.Write(msg);
+            Console.Write(formattedMessage);
             return;
         }
         string ansiColor = GetAnsiFromHex(hexColor);
-        Console.Write($"{ansiColor}{msg}{Colors.Reset}");
+        Console.Write($"{ansiColor}{formattedMessage}{Colors.Reset}");
     }
 
     /// <summary>
@@ -82,11 +82,11 @@ public static class ConsoleHelper
 
         if (!TerminalCapabilities.StylingEnabled)
         {
-            Console.WriteLine(msg);
+            Console.WriteLine(formattedMessage);
             return;
         }
         Console.ForegroundColor = color;
-        Console.WriteLine(msg);
+        Console.WriteLine(formattedMessage);
         Console.ResetColor();
     }
 
@@ -107,11 +107,11 @@ public static class ConsoleHelper
 
         if (!TerminalCapabilities.StylingEnabled)
         {
-            Console.WriteLine(msg);
+            Console.WriteLine(formattedMessage);
             return;
         }
         string ansiColor = GetAnsiFromHex(hexColor);
-        Console.WriteLine($"{ansiColor}{msg}{Colors.Reset}");
+        Console.WriteLine($"{ansiColor}{formattedMessage}{Colors.Reset}");
     }
 
     /// <summary>
