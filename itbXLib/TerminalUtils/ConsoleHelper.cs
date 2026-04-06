@@ -24,8 +24,11 @@ public static class ConsoleHelper
     /// </remarks>
     /// <param name="msg">The message to write to the console.</param>
     /// <param name="color">The <see cref="ConsoleColor"/> to use for the text.</param>
-    public static void ColorWrite(string msg, ConsoleColor color)
+    /// <param name="args">Optional formatting arguments for the message.</param>
+    public static void ColorWrite(string msg, ConsoleColor color, params object[] args)
     {
+        string formattedMessage = (args is { Length: > 0 }) ? string.Format(msg, args) : msg;
+
         if (!TerminalCapabilities.StylingEnabled)
         {
             Console.Write(msg);
@@ -47,8 +50,12 @@ public static class ConsoleHelper
     /// </remarks>
     /// <param name="msg">The message to write to the console.</param>
     /// <param name="hexColor">The hex color code (e.g., <c>"#FF5733"</c> or <c>"FF5733"</c>).</param>
-    public static void ColorWrite(string msg, string hexColor)
+    /// <param name="args">Optional formatting arguments for the message.</param>
+    public static void ColorWrite(string msg, string hexColor, params object[] args)
     {
+        string formattedMessage = (args is { Length: > 0 }) ? string.Format(msg, args) : msg;
+
+        
         if (!TerminalCapabilities.StylingEnabled)
         {
             Console.Write(msg);
@@ -68,8 +75,11 @@ public static class ConsoleHelper
     /// </remarks>
     /// <param name="msg">The message to write to the console.</param>
     /// <param name="color">The <see cref="ConsoleColor"/> to use for the text.</param>
-    public static void ColorWriteLine(string msg, ConsoleColor color)
+    /// <param name="args">Optional formatting arguments for the message.</param>
+    public static void ColorWriteLine(string msg, ConsoleColor color, params object[] args)
     {
+        string formattedMessage = (args is { Length: > 0 }) ? string.Format(msg, args) : msg;
+
         if (!TerminalCapabilities.StylingEnabled)
         {
             Console.WriteLine(msg);
@@ -90,8 +100,11 @@ public static class ConsoleHelper
     /// </remarks>
     /// <param name="msg">The message to write to the console.</param>
     /// <param name="hexColor">The hex color code (e.g., <c>"#FF5733"</c> or <c>"FF5733"</c>).</param>
-    public static void ColorWriteLine(string msg, string hexColor)
+    /// <param name="args">Optional formatting arguments for the message.</param>
+    public static void ColorWriteLine(string msg, string hexColor, params object[] args) 
     {
+        string formattedMessage = (args is { Length: > 0 }) ? string.Format(msg, args) : msg;
+
         if (!TerminalCapabilities.StylingEnabled)
         {
             Console.WriteLine(msg);
