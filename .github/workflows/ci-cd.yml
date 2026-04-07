@@ -70,9 +70,9 @@ jobs:
     steps:
       - name: Run Release Please
         id: release
-        uses: googleapis/release-please-action@7987652d64b4581673a76e33ad5e98e3dd56832f # v4.1.3
+        uses: googleapis/release-please-action@5800e47be481e7c91050a0d1de66bcbd56ad021b
         with:
-          release-type: dotnet
+          token: ${{ secrets.GITHUB_TOKEN }}
 
   build-and-pack:
     name: Build & Pack

@@ -1,0 +1,9 @@
+{
+  "packages": {
+    "itbXLib": {
+      "release-type": "dotnet",
+      "package-name": "itbXLib",
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
