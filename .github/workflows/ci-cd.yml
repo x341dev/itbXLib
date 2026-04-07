@@ -4,43 +4,17 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'CHANGELOG.md'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  update-unreleased:
-    name: Update Unreleased
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, 'chore(release)')"
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Generate Unreleased Changelog
-        uses: orhun/git-cliff-action@main
-        with:
-          config: cliff.toml
-          args: --output CHANGELOG.md
-        env:
-          OUTPUT: CHANGELOG.md
-
-      - name: Commit and Push Unreleased
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          git commit -m "docs: update unreleased changes [skip ci]" || echo "No changes to commit"
-          git push
-
   sonarqube:
     name: SonarQube Analysis
     runs-on: windows-latest
+    permissions:
+      contents: read
     steps:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -84,151 +58,34 @@ jobs:
           dotnet build
           ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
-  calculate-version:
-    name: Calculate Version
-    needs: update-unreleased
+  release-please:
+    name: Release Please (PR Gate)
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
-      version: ${{ steps.bumped.outputs.version }}
-      should_release: ${{ steps.should-release.outputs.should_release }}
+      release_created: ${{ steps.release.outputs.release_created }}
+      version: ${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Run Release Please
+        id: release
+        uses: googleapis/release-please-action@7987652d64b4581673a76e33ad5e98e3dd56832f # v4.1.3
         with:
-          fetch-depth: 0
-          ref: main
-
-      - name: Install git-cliff
-        uses: taiki-e/install-action@v2
-        with:
-          tool: git-cliff
-
-      - name: Determine required bump type
-        id: bump-type
-        run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 --match "v[0-9]*" 2>/dev/null || echo "")
-          if [ -z "$LAST_TAG" ]; then
-            RANGE="HEAD"
-            OLD_MAJOR=0; OLD_MINOR=0; OLD_PATCH=0
-          else
-            RANGE="${LAST_TAG}..HEAD"
-            STRIPPED=${LAST_TAG#v}
-            OLD_MAJOR=$(echo "$STRIPPED" | cut -d. -f1)
-            OLD_MINOR=$(echo "$STRIPPED" | cut -d. -f2)
-            OLD_PATCH=$(echo "$STRIPPED" | cut -d. -f3)
-          fi
-
-          echo "Baseline: ${LAST_TAG:-"(none)"} → ${OLD_MAJOR}.${OLD_MINOR}.${OLD_PATCH}"
-
-          SUBJECTS=$(git log "$RANGE" --format="%s")
-          BODIES=$(git log "$RANGE" --format="%b")
-
-          HAS_BREAKING=0; HAS_FEAT=0; HAS_PATCH_COMMIT=0
-
-          echo "$SUBJECTS" | grep -qE '^[a-z]+(\([^)]+\))?!:'                    && HAS_BREAKING=1
-          echo "$BODIES"   | grep -qiE '^BREAKING[- ]CHANGE:'                     && HAS_BREAKING=1
-          echo "$SUBJECTS" | grep -qE '^feat(\([^)]+\))?:'                        && HAS_FEAT=1
-          echo "$SUBJECTS" | grep -qE '^(fix|perf|security|revert)(\([^)]+\))?:' && HAS_PATCH_COMMIT=1
-
-          if   [ "$HAS_BREAKING"     -eq 1 ]; then REQUIRED="MAJOR"
-          elif [ "$HAS_FEAT"         -eq 1 ]; then REQUIRED="MINOR"
-          elif [ "$HAS_PATCH_COMMIT" -eq 1 ]; then REQUIRED="PATCH"
-          else                                      REQUIRED="NONE"
-          fi
-
-          echo "Required bump: $REQUIRED"
-          echo "required=$REQUIRED"   >> "$GITHUB_OUTPUT"
-          echo "last_tag=$LAST_TAG"   >> "$GITHUB_OUTPUT"
-          echo "old_major=$OLD_MAJOR" >> "$GITHUB_OUTPUT"
-          echo "old_minor=$OLD_MINOR" >> "$GITHUB_OUTPUT"
-          echo "old_patch=$OLD_PATCH" >> "$GITHUB_OUTPUT"
-
-      - name: Check if release is needed
-        id: should-release
-        run: |
-          if [ "${{ steps.bump-type.outputs.required }}" = "NONE" ]; then
-            echo "ℹ️  Commit type produces no SemVer change — skipping release."
-            echo "   (docs/chore/ci/test/refactor/style do not bump the version)"
-            echo "should_release=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_release=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Compute bumped version
-        id: bumped
-        if: steps.should-release.outputs.should_release == 'true'
-        run: |
-          VERSION=$(git cliff --bumped-version 2>/dev/null | sed 's/^v//')
-          echo "Computed next version: $VERSION"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
-      - name: Validate SemVer bump
-        if: steps.should-release.outputs.should_release == 'true'
-        run: |
-          VERSION="${{ steps.bumped.outputs.version }}"
-          NEW_MAJOR=$(echo "$VERSION" | cut -d. -f1)
-          NEW_MINOR=$(echo "$VERSION" | cut -d. -f2)
-          NEW_PATCH=$(echo "$VERSION" | cut -d. -f3)
-
-          REQUIRED="${{ steps.bump-type.outputs.required }}"
-          OLD_MAJOR="${{ steps.bump-type.outputs.old_major }}"
-          OLD_MINOR="${{ steps.bump-type.outputs.old_minor }}"
-          OLD_PATCH="${{ steps.bump-type.outputs.old_patch }}"
-          LAST_TAG="${{ steps.bump-type.outputs.last_tag }}"
-
-          echo "Baseline : ${LAST_TAG:-"(none)"} → ${OLD_MAJOR}.${OLD_MINOR}.${OLD_PATCH}"
-          echo "Computed : $VERSION"
-          echo "Required : $REQUIRED"
-          echo ""
-
-          FAIL=0
-
-          case "$REQUIRED" in
-            MAJOR)
-              [ "$NEW_MAJOR" -le "$OLD_MAJOR" ] && { echo "❌  MAJOR must increment for breaking changes. (baseline=$OLD_MAJOR computed=$NEW_MAJOR)"; FAIL=1; }
-              [ "$NEW_MINOR" -ne 0 ]            && { echo "❌  MINOR must reset to 0 when MAJOR is bumped (got $NEW_MINOR)."; FAIL=1; }
-              [ "$NEW_PATCH" -ne 0 ]            && { echo "❌  PATCH must reset to 0 when MAJOR is bumped (got $NEW_PATCH)."; FAIL=1; }
-              ;;
-            MINOR)
-              [ "$NEW_MAJOR" -ne "$OLD_MAJOR" ] && { echo "❌  MAJOR must not change for a feat commit. (baseline=$OLD_MAJOR computed=$NEW_MAJOR)"; FAIL=1; }
-              [ "$NEW_MINOR" -le "$OLD_MINOR" ] && { echo "❌  MINOR must increment for new features. (baseline=$OLD_MINOR computed=$NEW_MINOR)"; FAIL=1; }
-              [ "$NEW_PATCH" -ne 0 ]            && { echo "❌  PATCH must reset to 0 when MINOR is bumped (got $NEW_PATCH)."; FAIL=1; }
-              ;;
-            PATCH)
-              [ "$NEW_MAJOR" -ne "$OLD_MAJOR" ] && { echo "❌  MAJOR must not change for a fix/perf/security/revert commit."; FAIL=1; }
-              [ "$NEW_MINOR" -ne "$OLD_MINOR" ] && { echo "❌  MINOR must not change for a fix/perf/security/revert commit."; FAIL=1; }
-              [ "$NEW_PATCH" -le "$OLD_PATCH" ] && { echo "❌  PATCH must increment for bug fixes. (baseline=$OLD_PATCH computed=$NEW_PATCH)"; FAIL=1; }
-              ;;
-          esac
-
-          if [ "$FAIL" -eq 1 ]; then
-            echo ""
-            echo "╔══════════════════════════════════════════════════════════════╗"
-            echo "║               ⚠️  SEMVER VIOLATION DETECTED  ⚠️              ║"
-            echo "╚══════════════════════════════════════════════════════════════╝"
-            echo "Baseline tag : ${LAST_TAG:-none}  (${OLD_MAJOR}.${OLD_MINOR}.${OLD_PATCH})"
-            echo "Required bump: $REQUIRED"
-            echo "Computed ver : $VERSION"
-            echo "See https://semver.org for the full specification."
-            exit 1
-          fi
-
-          echo "✅  $VERSION satisfies SemVer rules for a $REQUIRED bump."
+          release-type: dotnet
 
   build-and-pack:
     name: Build & Pack
-    needs: calculate-version
-    if: needs.calculate-version.outputs.should_release == 'true'
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: ubuntu-latest
-    outputs:
-      version: ${{ needs.calculate-version.outputs.version }}
-
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: main
 
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
@@ -239,8 +96,7 @@ jobs:
         run: |
           dotnet restore
           dotnet build --configuration Release
-          dotnet pack --configuration Release -o ./packages \
-            /p:Version=${{ needs.calculate-version.outputs.version }}
+          dotnet pack --configuration Release -o ./packages /p:Version=${{ needs.release-please.outputs.version }}
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -249,41 +105,17 @@ jobs:
           path: ./packages/*.nupkg
           retention-days: 1
 
-  approve-and-release:
-    name: Approve & Publish
-    needs: build-and-pack
-    if: needs.build-and-pack.outputs.version != ''
+  publish-nuget:
+    name: Publish to NuGet
+    needs: [release-please, build-and-pack]
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: ubuntu-latest
     environment:
       name: Nuget Release
-
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: main
-
-      - name: Update Changelog with Tag
-        uses: orhun/git-cliff-action@main
-        with:
-          config: cliff.toml
-          args: --tag v${{ needs.build-and-pack.outputs.version }} --output CHANGELOG.md
-
-      - name: Generate Release Notes
-        uses: orhun/git-cliff-action@main
-        with:
-          config: cliff.toml
-          args: --unreleased --strip all --tag v${{ needs.build-and-pack.outputs.version }} --output release-notes.md
-
-      - name: Commit and Push Release Changelog
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          git commit -m "chore(release): prepare for v${{ needs.build-and-pack.outputs.version }} [skip ci]" || echo "No changes"
-          git push
-
       - name: Download Artifact
         uses: actions/download-artifact@v4
         with:
@@ -291,15 +123,4 @@ jobs:
           path: ./packages
 
       - name: Publish to NuGet
-        env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: dotnet nuget push ./packages/*.nupkg --api-key $NUGET_API_KEY --source https://api.nuget.org/v3/index.json
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ needs.build-and-pack.outputs.version }}
-          name: Release v${{ needs.build-and-pack.outputs.version }}
-          body_path: release-notes.md
-          files: ./packages/*.nupkg
-
+        run: dotnet nuget push ./packages/*.nupkg --source https://api.nuget.org/v3/index.json
