@@ -2,11 +2,11 @@
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![.NET](https://img.shields.io/badge/.NET-8.0-512BD4.svg)](https://dotnet.microsoft.com/)
-[![NuGet](https://img.shields.io/badge/nuget-itbXLib-blue.svg)](https://www.nuget.org/)
+[![NuGet](https://img.shields.io/badge/nuget-itbXLib-blue.svg)](https://www.nuget.org/packages/itbXLib)
 
 A .NET helper library for console applications used in educational projects at ITecBCN.
 
-## Features
+## Features 🌟
 
 - Terminal color helpers with RGB and HEX to ANSI conversion
 - Text styles (bold, italic/cursive, underline, and combined styles)
@@ -14,7 +14,7 @@ A .NET helper library for console applications used in educational projects at I
 - Runtime terminal capability detection with safe fallback to plain output
 - Generic validated input helper for reusable parsing and validation
 
-## Installation
+## Installation 📥
 
 ### .NET CLI
 
@@ -34,7 +34,7 @@ Install-Package itbXLib
 <PackageReference Include="itbXLib" Version="*" />
 ```
 
-## Usage
+## Usage 💠
 
 All public utilities are under:
 
@@ -135,12 +135,6 @@ if (!TerminalCapabilities.StylingEnabled)
 
 Deprecated members are intentionally omitted from this README. For new code, use `GenericInputs<T>` for input workflows and the `itbXLib.TerminalUtils` namespace for all terminal helpers.
 
-## Requirements
-
-- .NET 8.0 or higher
-- Windows, macOS, or Linux
-- ANSI-compatible terminal for styling features (plain fallback is automatic)
-
 ## Building from source
 
 ```bash
@@ -151,14 +145,13 @@ dotnet build
 
 ## Contributing
 
+Contributions are widely appreciated!
+If you want to help out, please follow these steps:
+
 1. Fork the repository
 2. Create a branch (`git checkout -b feature/my-change`)
 3. Commit using conventional commits
 4. Push and open a pull request
-
-## License
-
-MIT - see `LICENSE`.
 
 ## Changelog
 
@@ -166,4 +159,4 @@ See `CHANGELOG.md` for release history.
 
 ---
 
-Made with ❤️ for educational purposes at Institut Tecnològic de Barcelona
+Made with ❤️ from Barcelona. x341dev - [GitHub](https://github.com/x341dev)
