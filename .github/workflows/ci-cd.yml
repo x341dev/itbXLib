@@ -122,5 +122,10 @@ jobs:
           name: nuget-package
           path: ./packages
 
+      - name: NuGet login (OIDC → temp API key)
+          uses: NuGet/login@d22cc5f58ff5b88bf9bd452535b4335137e24544
+          with:
+            user: x341dev
+
       - name: Publish to NuGet
         run: dotnet nuget push ./packages/*.nupkg --source https://api.nuget.org/v3/index.json
