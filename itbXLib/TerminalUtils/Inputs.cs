@@ -23,7 +23,7 @@ public static class IntInputs
     {
         double result;
         Console.Write(message);
-        while(!double.TryParse(Console.ReadLine(), out result) || result <= 0)
+        while (!double.TryParse(Console.ReadLine(), out result) || result <= 0)
         {
             Console.WriteLine(errorMessage);
         }

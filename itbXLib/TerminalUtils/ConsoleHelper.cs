@@ -101,7 +101,7 @@ public static class ConsoleHelper
     /// <param name="msg">The message to write to the console.</param>
     /// <param name="hexColor">The hex color code (e.g., <c>"#FF5733"</c> or <c>"FF5733"</c>).</param>
     /// <param name="args">Optional formatting arguments for the message.</param>
-    public static void ColorWriteLine(string msg, string hexColor, params object[] args) 
+    public static void ColorWriteLine(string msg, string hexColor, params object[] args)
     {
         string formattedMessage = (args is { Length: > 0 }) ? string.Format(msg, args) : msg;
 
