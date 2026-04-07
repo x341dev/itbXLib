@@ -1,4 +1,5 @@
 {
+  "bootstrap-sha": "737b559ec68d0f1ed7fb4bb35a1c90ff009d952e",
   "packages": {
     ".": {
       "release-type": "simple",
