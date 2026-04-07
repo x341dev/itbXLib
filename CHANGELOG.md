@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.6](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.3.5...itbXLib-v1.3.6) (2026-04-07)
+
+
+### Bug Fixes
+
+* add ID to NuGet login step for better tracking ([a0d5b4b](https://github.com/x341dev/itbXLib/commit/a0d5b4bf7bc4f7df0f884382901d905c4d2bd1fb))
+
 ## [1.3.5](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.3.4...itbXLib-v1.3.5) (2026-04-07)
 
 
