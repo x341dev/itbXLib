@@ -30,3 +30,61 @@ public static class GenericInputs<T>
         return value;
     }
 }
+
+/// <summary>
+/// Provides static convenience methods for common validated console input types,
+/// built on top of <see cref="GenericInputs{T}"/>.
+/// </summary>
+public static class GenericInputs
+{
+    /// <summary>
+    /// Reads a validated integer from the console.
+    /// </summary>
+    /// <param name="message">The prompt message to display.</param>
+    /// <param name="errorMessage">The error message displayed on invalid input.</param>
+    /// <param name="color">Optional prompt color. Defaults to gray.</param>
+    /// <returns>A valid <see cref="int"/> entered by the user.</returns>
+    public static int ReadInt(string message, string errorMessage, ConsoleColor? color = null) =>
+        GenericInputs<int>.Read(message, errorMessage,
+            input => (int.TryParse(input, out int val), val), color);
+
+    /// <summary>
+    /// Reads a validated double from the console.
+    /// </summary>
+    /// <param name="message">The prompt message to display.</param>
+    /// <param name="errorMessage">The error message displayed on invalid input.</param>
+    /// <param name="color">Optional prompt color. Defaults to gray.</param>
+    /// <returns>A valid <see cref="double"/> entered by the user.</returns>
+    public static double ReadDouble(string message, string errorMessage, ConsoleColor? color = null) =>
+        GenericInputs<double>.Read(message, errorMessage,
+            input => (double.TryParse(input, out double val), val), color);
+
+    /// <summary>
+    /// Reads a validated non-empty string from the console.
+    /// </summary>
+    /// <param name="message">The prompt message to display.</param>
+    /// <param name="errorMessage">The error message displayed on invalid input.</param>
+    /// <param name="minLength">Minimum accepted string length. Defaults to 1.</param>
+    /// <param name="color">Optional prompt color. Defaults to gray.</param>
+    /// <returns>A non-empty <see cref="string"/> of at least <paramref name="minLength"/> characters.</returns>
+    public static string ReadString(string message, string errorMessage, int minLength = 1, ConsoleColor? color = null) =>
+        GenericInputs<string>.Read(message, errorMessage,
+            input => (!string.IsNullOrWhiteSpace(input) && input.Length >= minLength, input ?? string.Empty), color);
+
+    /// <summary>
+    /// Reads a validated boolean from the console.
+    /// Accepts <c>s</c>/<c>n</c>, <c>true</c>/<c>false</c>, and <c>yes</c>/<c>no</c> (case-insensitive).
+    /// </summary>
+    /// <param name="message">The prompt message to display.</param>
+    /// <param name="errorMessage">The error message displayed on invalid input.</param>
+    /// <param name="color">Optional prompt color. Defaults to gray.</param>
+    /// <returns><c>true</c> for affirmative input, <c>false</c> for negative input.</returns>
+    public static bool ReadBool(string message, string errorMessage, ConsoleColor? color = null) =>
+        GenericInputs<bool>.Read(message, errorMessage, input =>
+        {
+            string normalized = input.Trim().ToLowerInvariant();
+            bool isTrue  = normalized is "s" or "true" or "yes";
+            bool isFalse = normalized is "n" or "false" or "no";
+            return (isTrue || isFalse, isTrue);
+        }, color);
+}
