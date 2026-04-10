@@ -75,20 +75,21 @@ public static class ConsoleHelper
     /// <para>Falls back to plain output when <see cref="TerminalCapabilities.StylingEnabled"/> is <c>false</c>.</para>
     /// </remarks>
     /// <param name="msg">The message to write to the console.</param>
-    /// <param name="hexColor">The hex color code (e.g., <c>"#FF5733"</c> or <c>"FF5733"</c>).</param>
+    /// <param name="hexColor">The foreground hex color code (e.g., <c>"#FF5733"</c> or <c>"FF5733"</c>).</param>
+    /// <param name="bgHexColor">Optional background hex color code. Pass <c>null</c> to leave the background unchanged.</param>
     /// <param name="args">Optional formatting arguments for the message.</param>
-    public static void ColorWrite(string msg, string hexColor, params object[] args)
+    public static void ColorWrite(string msg, string hexColor, string? bgHexColor = null, params object[] args)
     {
         string formattedMessage = (args is { Length: > 0 }) ? string.Format(msg, args) : msg;
 
-        
         if (!TerminalCapabilities.StylingEnabled)
         {
             Console.Write(formattedMessage);
             return;
         }
         string ansiColor = GetAnsiFromHex(hexColor);
-        Console.Write($"{ansiColor}{formattedMessage}{Colors.Reset}");
+        string ansiBg = bgHexColor is not null ? Colors.RgbToAnsiBg(bgHexColor) : string.Empty;
+        Console.Write($"{ansiBg}{ansiColor}{formattedMessage}{Colors.Reset}");
     }
 
     /// <summary>
@@ -125,9 +126,10 @@ public static class ConsoleHelper
     /// <para>Falls back to plain output when <see cref="TerminalCapabilities.StylingEnabled"/> is <c>false</c>.</para>
     /// </remarks>
     /// <param name="msg">The message to write to the console.</param>
-    /// <param name="hexColor">The hex color code (e.g., <c>"#FF5733"</c> or <c>"FF5733"</c>).</param>
+    /// <param name="hexColor">The foreground hex color code (e.g., <c>"#FF5733"</c> or <c>"FF5733"</c>).</param>
+    /// <param name="bgHexColor">Optional background hex color code. Pass <c>null</c> to leave the background unchanged.</param>
     /// <param name="args">Optional formatting arguments for the message.</param>
-    public static void ColorWriteLine(string msg, string hexColor, params object[] args)
+    public static void ColorWriteLine(string msg, string hexColor, string? bgHexColor = null, params object[] args)
     {
         string formattedMessage = (args is { Length: > 0 }) ? string.Format(msg, args) : msg;
 
@@ -137,7 +139,8 @@ public static class ConsoleHelper
             return;
         }
         string ansiColor = GetAnsiFromHex(hexColor);
-        Console.WriteLine($"{ansiColor}{formattedMessage}{Colors.Reset}");
+        string ansiBg = bgHexColor is not null ? Colors.RgbToAnsiBg(bgHexColor) : string.Empty;
+        Console.WriteLine($"{ansiBg}{ansiColor}{formattedMessage}{Colors.Reset}");
     }
 
     /// <summary>
