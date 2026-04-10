@@ -40,6 +40,32 @@ public static class ConsoleHelper
     }
 
     /// <summary>
+    /// Writes the specified string value to the standard output stream using a specific RGB color.
+    /// This method uses ANSI escape sequences to support TrueColor (24-bit) and does not append a newline.
+    /// </summary>
+    /// <remarks>
+    /// <para>Requires a terminal that supports ANSI escape codes and TrueColor.</para>
+    /// <para>The color is automatically reset to default after the message is written.</para>
+    /// <para>Falls back to plain output when <see cref="TerminalCapabilities.StylingEnabled"/> is <c>false</c>.</para>
+    /// </remarks>
+    /// <param name="msg">The message to write to the console.</param>
+    /// <param name="r">Red component (0–255).</param>
+    /// <param name="g">Green component (0–255).</param>
+    /// <param name="b">Blue component (0–255).</param>
+    /// <param name="args">Optional formatting arguments for the message.</param>
+    public static void ColorWrite(string msg, int r, int g, int b, params object[] args)
+    {
+        string formattedMessage = (args is { Length: > 0 }) ? string.Format(msg, args) : msg;
+
+        if (!TerminalCapabilities.StylingEnabled)
+        {
+            Console.Write(formattedMessage);
+            return;
+        }
+        Console.Write($"{Colors.RgbToAnsi(r, g, b)}{formattedMessage}{Colors.Reset}");
+    }
+
+    /// <summary>
     /// Writes the specified string value to the standard output stream using a specific hex color code.
     /// This method uses ANSI escape sequences to support TrueColor (24-bit) and does not append a newline.
     /// </summary>
@@ -112,6 +138,31 @@ public static class ConsoleHelper
         }
         string ansiColor = GetAnsiFromHex(hexColor);
         Console.WriteLine($"{ansiColor}{formattedMessage}{Colors.Reset}");
+    }
+
+    /// <summary>
+    /// Writes the specified string value, followed by the current line terminator,
+    /// to the standard output stream using a specific RGB color.
+    /// </summary>
+    /// <remarks>
+    /// <para>Requires a terminal that supports ANSI escape codes and TrueColor.</para>
+    /// <para>Falls back to plain output when <see cref="TerminalCapabilities.StylingEnabled"/> is <c>false</c>.</para>
+    /// </remarks>
+    /// <param name="msg">The message to write to the console.</param>
+    /// <param name="r">Red component (0–255).</param>
+    /// <param name="g">Green component (0–255).</param>
+    /// <param name="b">Blue component (0–255).</param>
+    /// <param name="args">Optional formatting arguments for the message.</param>
+    public static void ColorWriteLine(string msg, int r, int g, int b, params object[] args)
+    {
+        string formattedMessage = (args is { Length: > 0 }) ? string.Format(msg, args) : msg;
+
+        if (!TerminalCapabilities.StylingEnabled)
+        {
+            Console.WriteLine(formattedMessage);
+            return;
+        }
+        Console.WriteLine($"{Colors.RgbToAnsi(r, g, b)}{formattedMessage}{Colors.Reset}");
     }
 
     /// <summary>
