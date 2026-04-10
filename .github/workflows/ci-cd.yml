@@ -118,6 +118,21 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Validate version consistency
+        run: |
+          MANIFEST_VERSION=$(jq -r '.["."]' .release-please-manifest.json)
+          CSPROJ_VERSION=$(grep -oP '(?<=<Version>)[^<]+' itbXLib/itbXLib.csproj || echo "")
+          TXT_VERSION=$(cat version.txt | tr -d '[:space:]')
+          echo "manifest: $MANIFEST_VERSION | csproj: $CSPROJ_VERSION | version.txt: $TXT_VERSION"
+          if [ -n "$CSPROJ_VERSION" ] && [ "$MANIFEST_VERSION" != "$CSPROJ_VERSION" ]; then
+            echo "ERROR: .release-please-manifest.json ($MANIFEST_VERSION) does not match itbXLib.csproj ($CSPROJ_VERSION)"
+            exit 1
+          fi
+          if [ "$MANIFEST_VERSION" != "$TXT_VERSION" ]; then
+            echo "ERROR: .release-please-manifest.json ($MANIFEST_VERSION) does not match version.txt ($TXT_VERSION)"
+            exit 1
+          fi
+
       - name: Build and Pack
         run: |
           dotnet restore
