@@ -10,8 +10,33 @@ permissions:
   contents: read
 
 jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Run tests with coverage
+        run: dotnet test itbXLib.Tests/itbXLib.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ./coverage
+          retention-days: 7
+
   sonarqube:
     name: SonarQube Analysis
+    needs: test
     runs-on: windows-latest
     permissions:
       contents: read
@@ -56,6 +81,7 @@ jobs:
         run: |
           ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"x341dev_itbXLib" /o:"x341devorg" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
           dotnet build
+          dotnet test itbXLib.Tests/itbXLib.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./coverage
           ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   release-please:
