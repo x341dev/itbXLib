@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.3.6...itbXLib-v1.4.0) (2026-04-10)
+
+
+### Features
+
+* **colors:** add background color support ([3556b86](https://github.com/x341dev/itbXLib/commit/3556b86dced2c01770340dedc64c15ba1fa595f7)), closes [#12](https://github.com/x341dev/itbXLib/issues/12)
+* **inputs:** add convenience methods to GenericInputs ([bc1d29d](https://github.com/x341dev/itbXLib/commit/bc1d29de9621a7904fd15a3783f44efdf2d67937)), closes [#13](https://github.com/x341dev/itbXLib/issues/13)
+* **inputs:** add RGB overloads to ConsoleHelper ([938c58c](https://github.com/x341dev/itbXLib/commit/938c58caba077bdc3a137b0c9bfeb45cd5d68577)), closes [#8](https://github.com/x341dev/itbXLib/issues/8)
+
 ## [1.3.6](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.3.5...itbXLib-v1.3.6) (2026-04-07)
 
 
