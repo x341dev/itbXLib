@@ -11,6 +11,7 @@
         <Company>ITecBCN</Company>
         <Description>A helper library for activities for the Institut Tecnològic de Barcelona</Description>
         <RepositoryUrl>https://github.com/x341dev/itbXLib</RepositoryUrl>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,5 +1,9 @@
 namespace itbXLib.TerminalUtils;
 
+/// <summary>
+/// Provides a generic validated console input loop.
+/// </summary>
+/// <typeparam name="T">The type of value to read and return.</typeparam>
 public static class GenericInputs<T>
 {
     /// <summary>
