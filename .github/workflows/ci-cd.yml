@@ -5,6 +5,11 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      version_suffix:
+        description: 'Version sufix (ex. beta.1). Leave blank to use actual.'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -103,7 +108,7 @@ jobs:
   build-and-pack:
     name: Build & Pack
     needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    if: ${{ needs.release-please.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -135,9 +140,20 @@ jobs:
 
       - name: Build and Pack
         run: |
+          # Resuelve la versión: Usa la de release-please, o lee version.txt si es manual
+          VERSION="${{ needs.release-please.outputs.version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION=$(cat version.txt | tr -d '[:space:]')
+            SUFFIX="${{ github.event.inputs.version_suffix }}"
+            if [ -n "$SUFFIX" ]; then
+              VERSION="${VERSION}-${SUFFIX}"
+            fi
+            echo "Manual run detected. Using version from file: $VERSION"
+          fi
+          
           dotnet restore
           dotnet build --configuration Release
-          dotnet pack --configuration Release -o ./packages /p:Version=${{ needs.release-please.outputs.version }}
+          dotnet pack --configuration Release -o ./packages /p:Version=$VERSION
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
@@ -149,7 +165,7 @@ jobs:
   publish-nuget:
     name: Publish to NuGet
     needs: [release-please, build-and-pack]
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    if: ${{ needs.release-please.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     environment:
       name: Nuget Release
@@ -170,12 +186,12 @@ jobs:
           user: x341dev
 
       - name: Publish to NuGet
-        run: dotnet nuget push ./packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push ./packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --skip-duplicate
 
   publish-github:
     name: Publish to GitHub Packages
     needs: [release-please, build-and-pack]
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    if: ${{ needs.release-please.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
