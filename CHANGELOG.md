@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.4.1...itbXLib-v1.5.0) (2026-05-11)
+
+
+### Features
+
+* **mongo:** add MongoDB implementation and Generic Crud system ([bb5d6d1](https://github.com/x341dev/itbXLib/commit/bb5d6d11208200405af2c29bc1df6aa094afae04))
+
+
+### Bug Fixes
+
+* dependency missmatch on Tests.csproj ([8e346a0](https://github.com/x341dev/itbXLib/commit/8e346a03c79557fe26e3e7e2e1a08d1a8bd64676))
+
 ## [1.4.1](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.4.0...itbXLib-v1.4.1) (2026-04-10)
 
 
