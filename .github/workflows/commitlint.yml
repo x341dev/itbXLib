@@ -23,7 +23,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: "lts/*"
+          node-version: "24"
           cache: "npm"
 
       - name: Install dependencies
@@ -42,8 +42,13 @@ jobs:
       - name: Lint commits (push)
         if: github.event_name == 'push'
         run: |
+          FROM_SHA="${{ github.event.before }}"
+          if [ "$FROM_SHA" = "0000000000000000000000000000000000000000" ]; then
+            FROM_SHA="HEAD~1"
+          fi
+          
           npx commitlint \
-            --from "${{ github.event.before }}" \
-            --to   "${{ github.event.after }}" \
+            --from "$FROM_SHA" \
+            --to "${{ github.event.after }}" \
             --verbose
 
