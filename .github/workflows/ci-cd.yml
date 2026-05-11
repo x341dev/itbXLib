@@ -171,3 +171,33 @@ jobs:
 
       - name: Publish to NuGet
         run: dotnet nuget push ./packages/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
+
+  publish-github:
+    name: Publish to GitHub Packages
+    needs: [release-please, build-and-pack]
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ./packages
+    
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+          source-url: https://nuget.pkg.github.com/x341dev/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+      - name: Push to GitHub Packages
+        run: |
+          dotnet nuget push "./packages/*.nupkg" \
+            --api-key ${{ secrets.GITHUB_TOKEN }} \
+            --source "https://nuget.pkg.github.com/x341dev/index.json" \
+            --skip-duplicate
