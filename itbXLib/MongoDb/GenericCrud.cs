@@ -1,7 +1,7 @@
 using itbXLib.TerminalUtils;
 using MongoDB.Driver;
 
-namespace itbXlib.MongoDb;
+namespace itbXLib.MongoDb;
 
 /// <summary>
 /// Generic CRUD helper for a MongoDB collection.

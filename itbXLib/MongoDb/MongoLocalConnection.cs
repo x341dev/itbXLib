@@ -1,6 +1,6 @@
 using MongoDB.Driver;
 
-namespace itbXlib.MongoDb;
+namespace itbXLib.MongoDb;
 
 public static class MongoLocalConnection
 {
