@@ -5,6 +5,13 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.5.0...itbXLib-v1.5.1) (2026-05-11)
+
+
+### Bug Fixes
+
+* correct namespace casing in MongoDB files ([16e50d3](https://github.com/x341dev/itbXLib/commit/16e50d351370fb850fdbde2191c6d3cfd7f2e2fe))
+
 ## [1.5.0](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.4.1...itbXLib-v1.5.0) (2026-05-11)
 
 
