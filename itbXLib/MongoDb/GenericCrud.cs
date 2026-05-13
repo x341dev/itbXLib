@@ -42,8 +42,9 @@ public class GenericCrud<T>
     /// <param name="items">The list of items to insert.</param>
     public void CreateMany(IEnumerable<T> items)
     {
-        _collection.InsertMany(items);
-        ConsoleHelper.ColorWriteLine($"Inserted {items.Count()} items into collection", ConsoleColor.Green);
+        var itemList = items as ICollection<T> ?? items.ToList();
+        _collection.InsertMany(itemList);
+        ConsoleHelper.ColorWriteLine($"Inserted {itemList.Count} items into collection", ConsoleColor.Green);
     }
 
     /// <summary>
@@ -65,20 +66,21 @@ public class GenericCrud<T>
     }
 
     /// <summary>
-    /// Finds a document by its Id field.
+    /// Finds a document by its ID field.
     /// </summary>
     /// <param name="id">The id value to search for (as a string).</param>
     /// <returns>The matching document, or <c>null</c> if not found.</returns>
     public T GetById(string id)
     {
         var item = _collection.Find(Builders<T>.Filter.Eq("Id", id)).FirstOrDefault();
-        if (item == null)
+        var isDefault = EqualityComparer<T>.Default.Equals(item, default(T));
+        if (isDefault)
         {
             ConsoleHelper.ColorWriteLine($"No item found with ID: {id}", ConsoleColor.Yellow);
         }
         else
         {
-            ConsoleHelper.ColorWriteLine($"Retrieved item by ID: {id} - Found: {item != null}", ConsoleColor.Green);
+            ConsoleHelper.ColorWriteLine($"Retrieved item by ID: {id} - Found: {true}", ConsoleColor.Green);
         }
         return item;
     }
@@ -92,7 +94,8 @@ public class GenericCrud<T>
     public T GetByParam(string paramName, string paramValue)
     {
         var item = _collection.Find(Builders<T>.Filter.Eq(paramName, paramValue)).FirstOrDefault();
-        if (item == null)
+        var isDefault = EqualityComparer<T>.Default.Equals(item, default(T));
+        if (isDefault)
         {
             ConsoleHelper.ColorWriteLine($"No item found with {paramName}={paramValue}", ConsoleColor.Yellow);
         }
