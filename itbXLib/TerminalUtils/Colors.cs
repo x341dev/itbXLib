@@ -17,20 +17,6 @@ public static class Colors
     public static string Reset => TerminalCapabilities.StylingEnabled ? AnsiReset : string.Empty;
 
     /// <summary>
-    /// Converts RGB components to an ANSI escape sequence for 24-bit (TrueColor) foreground color.
-    /// Returns an empty string when <see cref="TerminalCapabilities.StylingEnabled"/> is <c>false</c>.
-    /// </summary>
-    /// <param name="r">Red component (0–255).</param>
-    /// <param name="g">Green component (0–255).</param>
-    /// <param name="b">Blue component (0–255).</param>
-    /// <returns>An ANSI escape sequence string, or <see cref="string.Empty"/> if styling is disabled.</returns>
-    public static string RgbToAnsi(int r, int g, int b)
-    {
-        if (!TerminalCapabilities.StylingEnabled) return string.Empty;
-        return $"\u001b[38;2;{r};{g};{b}m";
-    }
-
-    /// <summary>
     /// Converts RGB components to an ANSI escape sequence for 24-bit (TrueColor) background color.
     /// Returns an empty string when <see cref="TerminalCapabilities.StylingEnabled"/> is <c>false</c>.
     /// </summary>
@@ -70,6 +56,20 @@ public static class Colors
     }
 
     /// <summary>
+    /// Converts RGB components to an ANSI escape sequence for 24-bit (TrueColor) foreground color.
+    /// Returns an empty string when <see cref="TerminalCapabilities.StylingEnabled"/> is <c>false</c>.
+    /// </summary>
+    /// <param name="r">Red component (0–255).</param>
+    /// <param name="g">Green component (0–255).</param>
+    /// <param name="b">Blue component (0–255).</param>
+    /// <returns>An ANSI escape sequence string, or <see cref="string.Empty"/> if styling is disabled.</returns>
+    public static string RgbToAnsi(int r, int g, int b)
+    {
+        if (!TerminalCapabilities.StylingEnabled) return string.Empty;
+        return $"\u001b[38;2;{r};{g};{b}m";
+    }
+
+    /// <summary>
     /// Converts a hex color string (e.g., <c>"#RRGGBB"</c> or <c>"RRGGBB"</c>) to an ANSI escape sequence
     /// for 24-bit (TrueColor) foreground color.
     /// Returns an empty string when <see cref="TerminalCapabilities.StylingEnabled"/> is <c>false</c>.
@@ -94,4 +94,3 @@ public static class Colors
         return RgbToAnsi(r, g, b);
     }
 }
-
