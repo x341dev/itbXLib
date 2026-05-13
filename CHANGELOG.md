@@ -5,6 +5,23 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.5.1...itbXLib-v2.0.0) (2026-05-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* The IntInputs class has been removed. Users should migrate to the GenericInputs class.
+
+### Bug Fixes
+
+* **crud:** improve item insertion and retrieval logging in GenericCrud ([4c91ed3](https://github.com/x341dev/itbXLib/commit/4c91ed3524b768f9dcb7789499347d34f0361831))
+* **MongoLocalConnection:** change Url to a property for better configurability ([513909c](https://github.com/x341dev/itbXLib/commit/513909c7bbf14caac2024e501355acbb5f2e9891))
+
+
+### Code Refactoring
+
+* remove deprecated Inputs.cs ([e0ef9e7](https://github.com/x341dev/itbXLib/commit/e0ef9e7a81ce0af8f0881e3a4c0187365a9d30a2))
+
 ## [1.5.1](https://github.com/x341dev/itbXLib/compare/itbXLib-v1.5.0...itbXLib-v1.5.1) (2026-05-11)
 
 
