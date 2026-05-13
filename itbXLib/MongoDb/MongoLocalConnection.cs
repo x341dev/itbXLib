@@ -12,7 +12,7 @@ public static class MongoLocalConnection
     /// Connection URL used to connect to the local MongoDB instance.
     /// Default: "mongodb://127.0.0.1:27017/".
     /// </summary>
-    private static readonly string Url = "mongodb://127.0.0.1:27017/";
+    private static string Url { get; set; } = "mongodb://127.0.0.1:27017/";
 
     /// <summary>
     /// Cached <see cref="MongoClient"/> instance used for all operations.
