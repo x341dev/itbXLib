@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: ["**"]
 
+permissions:
+  contents: read
+
 jobs:
   commitlint:
     name: Lint commit messages
@@ -51,4 +54,3 @@ jobs:
             --from "$FROM_SHA" \
             --to "${{ github.event.after }}" \
             --verbose
-
