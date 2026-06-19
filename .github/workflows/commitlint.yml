@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           # Fetch enough history so commitlint can walk back to the base commit.
           # For PRs this fetches the full branch; for pushes it fetches the
